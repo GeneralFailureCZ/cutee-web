@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="type" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 141.73 85.04">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        font-family: MADETOMMY-Medium, 'MADE TOMMY';
+        font-size: 44px;
+        font-weight: 500;
+        stroke: #1d1d1b;
+        stroke-linejoin: round;
+      }
+    </style>
+  </defs>
+  <text class="cls-1" transform="translate(11.85 74.54) rotate(-5.65)"><tspan x="0" y="0">C</tspan></text>
+  <text class="cls-1" transform="translate(45.28 70.78) rotate(-14.93)"><tspan x="0" y="0">u</tspan></text>
+  <text class="cls-1" transform="translate(71.6 63.38) rotate(-21.82)"><tspan x="0" y="0">t</tspan></text>
+  <text class="cls-1" transform="translate(88.97 56.58) rotate(-28.65)"><tspan x="0" y="0">e</tspan></text>
+  <text class="cls-1" transform="translate(113.46 42.96) rotate(-36.97)"><tspan x="0" y="0">e</tspan></text>
+</svg>
