@@ -1,26 +1,185 @@
 <!DOCTYPE html>
-<html>
+<html lang="cs">
 <head>
-  <meta charset="UTF-8" />
-  <title>Cutee.cz by Emča</title>
+  <meta charset="UTF-8">
+  <title>Cutee by Emča</title>
   <style>
     html, body {
-      margin: 0;          /* odstraní okraje */
-      height: 100%;       /* výška 100% viewportu */
-      width: 100%;        /* šířka 100% viewportu */
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background-color: #fff;
     }
+
     body {
-      display: flex;
+      position: relative;
     }
-    img {
+
+    #cat-container {
       width: 100vw;
-      height: 100vh;      /* 100% výšky viewportu */
-      object-fit: cover;  /* zachová poměr stran, můžeš zkusit i contain */
-      display: block;     /* odstraní mezery pod obrázkem */
+      height: 100vh;
+      position: relative;
+    }
+
+    #cat {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 33.33vw;
+      max-height: 33.33vh;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    #corner-label {
+      position: absolute;
+      right: 1vw;
+      bottom: 1vh;
+      max-width: 15vw;
+      max-height: 15vh;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .paw {
+      position: absolute;
+      max-width: 60px;
+      pointer-events: auto;
+      transform-origin: center center;
+      z-index: 1;
+    }
+
+    .paw:active {
+      transform: scale(0.85) rotate(var(--angle));
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1) rotate(var(--angle)); }
+      50% { transform: scale(2) rotate(var(--angle)); }
+      100% { transform: scale(1) rotate(var(--angle)); }
     }
   </style>
 </head>
 <body>
-  <img src="Cutee_logo.svg" alt="Logo" />
+
+  <div id="cat-container">
+    <!-- Kočka uprostřed -->
+    <img id="cat" src="cat.svg" alt="Kočka">
+
+    <!-- Pravý dolní roh – nápis -->
+    <img id="corner-label" src="label.svg" alt="Nápis">
+  </div>
+
+  <script>
+    const PAW_COUNT = 10;
+    const pawSizeRatio = 0.08;
+    const paws = [];
+    const positions = [];
+
+    function getElementRect(el) {
+      const rect = el.getBoundingClientRect();
+      return {
+        x: rect.left,
+        y: rect.top,
+        width: rect.width,
+        height: rect.height
+      };
+    }
+
+    function overlaps(r1, r2, margin = 0) {
+      return !(
+        r1.x + r1.width < r2.x + margin ||
+        r1.x > r2.x + r2.width - margin ||
+        r1.y + r1.height < r2.y + margin ||
+        r1.y > r2.y + r2.height - margin
+      );
+    }
+
+    function randomPosition(size) {
+      const padding = 10;
+      return {
+        x: Math.random() * (window.innerWidth - size - padding * 2) + padding,
+        y: Math.random() * (window.innerHeight - size - padding * 2) + padding
+      };
+    }
+
+    function isOverlappingAny(x, y, size, catRect) {
+      const newRect = { x, y, width: size, height: size };
+      const overlapsCat = overlaps(newRect, catRect, -size * 0.2); // malý bezpečný okraj
+      const overlapsOther = positions.some(pos => {
+        const dx = pos.x - x;
+        const dy = pos.y - y;
+        return Math.sqrt(dx * dx + dy * dy) < size * 0.9;
+      });
+      return overlapsCat || overlapsOther;
+    }
+
+    function placePaw(paw, catRect) {
+      const size = Math.min(window.innerWidth, window.innerHeight) * pawSizeRatio;
+      let x, y;
+      let attempts = 0;
+
+      do {
+        const pos = randomPosition(size);
+        x = pos.x;
+        y = pos.y;
+        attempts++;
+        if (attempts > 200) break; // když by náhodou nebylo místo
+      } while (isOverlappingAny(x, y, size, catRect));
+
+      positions.push({ x, y });
+
+      const angle = Math.floor(Math.random() * 360);
+      paw.style.width = `${size}px`;
+      paw.style.left = `${x}px`;
+      paw.style.top = `${y}px`;
+      paw.style.setProperty('--angle', `${angle}deg`);
+
+      const duration = 3 + Math.random() * 3;
+      const delay = Math.random() * 3;
+      paw.style.animation = `pulse ${duration}s ease-in-out ${delay}s infinite`;
+    }
+
+    function movePaw(paw, index, catRect) {
+      positions.splice(index, 1);
+      placePaw(paw, catRect);
+    }
+
+    function createPaw(index, catRect) {
+      const paw = document.createElement("img");
+      paw.src = "paw.svg";
+      paw.classList.add("paw");
+      paw.addEventListener("click", () => {
+        movePaw(paw, index, catRect);
+      });
+
+      document.getElementById("cat-container").appendChild(paw);
+      placePaw(paw, catRect);
+      paws.push(paw);
+    }
+
+    function initialize() {
+      positions.length = 0;
+      paws.length = 0;
+      document.querySelectorAll(".paw").forEach(p => p.remove());
+
+      const cat = document.getElementById("cat");
+      const catRect = getElementRect(cat);
+
+      for (let i = 0; i < PAW_COUNT; i++) {
+        createPaw(i, catRect);
+      }
+    }
+
+    window.addEventListener("load", () => {
+      setTimeout(initialize, 100); // počkáme až se SVG načtou a změří
+    });
+
+    window.addEventListener("resize", () => {
+      setTimeout(initialize, 100);
+    });
+  </script>
 </body>
 </html>
